@@ -35,7 +35,7 @@ public class HadoopIngestionSpec extends IngestionSpec<HadoopIOConfig, HadoopTun
       @JsonProperty("dataSchema") DataSchema dataSchema,
       @JsonProperty("ioConfig") HadoopIOConfig ioConfig,
       @JsonProperty("tuningConfig") HadoopTuningConfig tuningConfig,
-      final @JsonProperty("avro") boolean avro,
+      final @JsonProperty("avro") boolean avro
   )
   {
     super(dataSchema, ioConfig, tuningConfig);
