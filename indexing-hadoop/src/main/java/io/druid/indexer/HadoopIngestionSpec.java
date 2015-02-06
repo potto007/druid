@@ -71,7 +71,8 @@ public class HadoopIngestionSpec extends IngestionSpec<HadoopIOConfig, HadoopTun
     return new HadoopIngestionSpec(
         schema,
         ioConfig,
-        tuningConfig
+        tuningConfig,
+        false //avro
     );
   }
 
@@ -80,7 +81,8 @@ public class HadoopIngestionSpec extends IngestionSpec<HadoopIOConfig, HadoopTun
     return new HadoopIngestionSpec(
         dataSchema,
         config,
-        tuningConfig
+        tuningConfig,
+        false //avro
     );
   }
 
@@ -89,7 +91,8 @@ public class HadoopIngestionSpec extends IngestionSpec<HadoopIOConfig, HadoopTun
     return new HadoopIngestionSpec(
         dataSchema,
         ioConfig,
-        config
+        config,
+        false //avro
     );
   }
 }
