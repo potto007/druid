@@ -303,7 +303,7 @@ public class HadoopDruidIndexerConfig
 
   public boolean isAvro()
   {
-    return spec.getTuningConfig().isAvro();
+    return schema.getTuningConfig().isAvro();
   }
 
   public StringInputRowParser getParser()
