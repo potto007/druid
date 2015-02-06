@@ -68,6 +68,11 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.Interval;
 
+// Avro patch
+import io.druid.indexer.hadoop.avro.AvroPositionInputFormat;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.mapred.AvroValue;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -127,8 +132,14 @@ public class DeterminePartitionsJob implements Jobby
         );
 
         JobHelper.injectSystemProperties(groupByJob);
-        groupByJob.setInputFormatClass(TextInputFormat.class);
-        groupByJob.setMapperClass(DeterminePartitionsGroupByMapper.class);
+        if(config.isAvro()){
+               //Avro specific config
+               groupByJob.setMapperClass(AvroDeterminePartitionsGroupByMapper.class);
+               groupByJob.setInputFormatClass(AvroPositionInputFormat.class);
+        } else {
+               groupByJob.setInputFormatClass(TextInputFormat.class);
+            groupByJob.setMapperClass(DeterminePartitionsGroupByMapper.class);
+        }
         groupByJob.setMapOutputKeyClass(BytesWritable.class);
         groupByJob.setMapOutputValueClass(NullWritable.class);
         groupByJob.setCombinerClass(DeterminePartitionsGroupByReducer.class);
@@ -261,6 +272,36 @@ public class DeterminePartitionsJob implements Jobby
     protected void innerMap(
         InputRow inputRow,
         Text text,
+        Context context
+    ) throws IOException, InterruptedException
+    {
+      final List<Object> groupKey = Rows.toGroupKey(
+          rollupGranularity.truncate(inputRow.getTimestampFromEpoch()),
+          inputRow
+      );
+      context.write(
+          new BytesWritable(HadoopDruidIndexerConfig.jsonMapper.writeValueAsBytes(groupKey)),
+          NullWritable.get()
+      );
+    }
+  }
+
+  public static class AvroDeterminePartitionsGroupByMapper extends AvroHadoopDruidIndexerMapper<BytesWritable, NullWritable>
+  {
+    private QueryGranularity rollupGranularity = null;
+
+    @Override
+    protected void setup(Context context)
+        throws IOException, InterruptedException
+    {
+      super.setup(context);
+      rollupGranularity = getConfig().getGranularitySpec().getQueryGranularity();
+    }
+
+    @Override
+    protected void innerMap(
+        InputRow inputRow,
+        AvroValue<GenericRecord> record,
         Context context
     ) throws IOException, InterruptedException
     {

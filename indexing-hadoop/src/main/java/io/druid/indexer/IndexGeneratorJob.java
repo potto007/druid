@@ -73,6 +73,12 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
+// Avro patch
+import io.druid.indexer.hadoop.avro.AvroPositionInputFormat;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.mapred.AvroValue;
+
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -157,13 +163,19 @@ public class IndexGeneratorJob implements Jobby
 
       JobHelper.injectSystemProperties(job);
 
-      if (config.isCombineText()) {
-        job.setInputFormatClass(CombineTextInputFormat.class);
+      if(config.isAvro()){
+         //Avro Specific configuration
+         job.setInputFormatClass(AvroPositionInputFormat.class);
+         job.setMapperClass(AvroIndexGeneratorMapper.class);
       } else {
-        job.setInputFormatClass(TextInputFormat.class);
+         if (config.isCombineText()) {
+               job.setInputFormatClass(CombineTextInputFormat.class);
+             } else {
+               job.setInputFormatClass(TextInputFormat.class);
+             }
+         job.setMapperClass(IndexGeneratorMapper.class);
       }
 
-      job.setMapperClass(IndexGeneratorMapper.class);
       job.setMapOutputValueClass(Text.class);
 
       SortableBytes.useSortableBytesAsMapOutputKey(job);
@@ -209,6 +221,32 @@ public class IndexGeneratorJob implements Jobby
     }
     catch (Exception e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  public static class AvroIndexGeneratorMapper extends AvroHadoopDruidIndexerMapper<BytesWritable, Text>
+  {
+    @Override
+    protected void innerMap(
+        InputRow inputRow,
+        AvroValue<GenericRecord> record,
+        Context context
+    ) throws IOException, InterruptedException
+    {
+      // Group by bucket, sort by timestamp
+      final Optional<Bucket> bucket = getConfig().getBucket(inputRow);
+
+      if (!bucket.isPresent()) {
+        throw new ISE("WTF?! No bucket found for row: %s", inputRow);
+      }
+
+      context.write(
+          new SortableBytes(
+              bucket.get().toGroupKey(),
+              Longs.toByteArray(inputRow.getTimestampFromEpoch())
+          ).toBytesWritable(),
+          new Text(record.toString()) //TODO:Check implications
+      );
     }
   }
 

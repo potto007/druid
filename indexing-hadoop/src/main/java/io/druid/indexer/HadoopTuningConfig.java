@@ -72,6 +72,7 @@ public class HadoopTuningConfig implements TuningConfig
   private final boolean ignoreInvalidRows;
   private final Map<String, String> jobProperties;
   private final boolean combineText;
+  private final boolean avro;
   private final boolean persistInHeap;
   private final boolean ingestOffheap;
   private final int bufferSize;
@@ -90,6 +91,7 @@ public class HadoopTuningConfig implements TuningConfig
       final @JsonProperty("ignoreInvalidRows") boolean ignoreInvalidRows,
       final @JsonProperty("jobProperties") Map<String, String> jobProperties,
       final @JsonProperty("combineText") boolean combineText,
+      final @JsonProperty("avro") boolean avro,
       final @JsonProperty("persistInHeap") boolean persistInHeap,
       final @JsonProperty("ingestOffheap") boolean ingestOffheap,
       final @JsonProperty("bufferSize") Integer bufferSize,
@@ -109,6 +111,7 @@ public class HadoopTuningConfig implements TuningConfig
                           ? ImmutableMap.<String, String>of()
                           : ImmutableMap.copyOf(jobProperties));
     this.combineText = combineText;
+    this.avro = avro;
     this.persistInHeap = persistInHeap;
     this.ingestOffheap = ingestOffheap;
     this.bufferSize = bufferSize == null ? DEFAULT_BUFFER_SIZE : bufferSize;
@@ -182,6 +185,12 @@ public class HadoopTuningConfig implements TuningConfig
   }
 
   @JsonProperty
+  public boolean isAvro()
+  {
+    return avro;
+  }
+
+  @JsonProperty
   public boolean isPersistInHeap()
   {
     return persistInHeap;
@@ -217,6 +226,7 @@ public class HadoopTuningConfig implements TuningConfig
         ignoreInvalidRows,
         jobProperties,
         combineText,
+        avro,
         persistInHeap,
         ingestOffheap,
         bufferSize,
@@ -238,6 +248,7 @@ public class HadoopTuningConfig implements TuningConfig
         ignoreInvalidRows,
         jobProperties,
         combineText,
+        avro,
         persistInHeap,
         ingestOffheap,
         bufferSize,
@@ -259,6 +270,7 @@ public class HadoopTuningConfig implements TuningConfig
         ignoreInvalidRows,
         jobProperties,
         combineText,
+        avro,
         persistInHeap,
         ingestOffheap,
         bufferSize,
