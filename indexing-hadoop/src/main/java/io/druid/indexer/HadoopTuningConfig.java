@@ -56,6 +56,7 @@ public class HadoopTuningConfig implements TuningConfig
         false,
         false,
         false,
+        false,
         DEFAULT_BUFFER_SIZE,
         DEFAULT_AGG_BUFFER_RATIO
     );
