@@ -13,7 +13,7 @@ In this tutorial, we will set up other types of Druid nodes and external depende
 
 If you followed the first tutorial, you should already have Druid downloaded. If not, let's go back and do that first.
 
-You can download the latest version of druid [here](http://static.druid.io/artifacts/releases/druid-services-0.7.0-rc1-bin.tar.gz)
+You can download the latest version of druid [here](http://static.druid.io/artifacts/releases/druid-services-0.7.0-rc3-bin.tar.gz)
 
 and untar the contents within by issuing:
 
@@ -280,7 +280,7 @@ Now we should be handing off segments every 6 minutes or so.
 To start the realtime node that was used in our first tutorial, you simply have to issue:
 
 ```
-java -Xmx256m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Ddruid.realtime.specFile=examples/wikipedia/wikipedia_realtime.spec -classpath lib/*:config/realtime io.druid.cli.Main server realtime
+java -Xmx512m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Ddruid.realtime.specFile=examples/wikipedia/wikipedia_realtime.spec -classpath lib/*:config/realtime io.druid.cli.Main server realtime
 ```
 
 The configurations are located in `config/realtime/runtime.properties` and should contain the following:
@@ -293,7 +293,7 @@ druid.service=realtime
 # We can only 1 scan segment in parallel with these configs.
 # Our intermediate buffer is also very small so longer topNs will be slow.
 druid.processing.buffer.sizeBytes=100000000
-druid.processing.numThreads=1
+druid.processing.numThreads=2
 
 # Enable Real monitoring
 # druid.monitoring.monitors=["com.metamx.metrics.SysMonitor","com.metamx.metrics.JvmMonitor","io.druid.segment.realtime.RealtimeMetricsMonitor"]

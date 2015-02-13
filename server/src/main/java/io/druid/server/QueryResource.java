@@ -17,7 +17,6 @@
 
 package io.druid.server;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.jaxrs.smile.SmileMediaTypes;
@@ -89,12 +88,8 @@ public class QueryResource
   )
   {
     this.config = config;
-    this.jsonMapper = jsonMapper.copy();
-    this.jsonMapper.getFactory().configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
-
-    this.smileMapper = smileMapper.copy();
-    this.smileMapper.getFactory().configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
-
+    this.jsonMapper = jsonMapper;
+    this.smileMapper = smileMapper;
     this.texasRanger = texasRanger;
     this.emitter = emitter;
     this.requestLogger = requestLogger;
@@ -117,7 +112,7 @@ public class QueryResource
   public Response doPost(
       InputStream in,
       @QueryParam("pretty") String pretty,
-      @Context HttpServletRequest req // used only to get request content-type and remote address
+      @Context final HttpServletRequest req // used only to get request content-type and remote address
   ) throws IOException
   {
     final long start = System.currentTimeMillis();
@@ -125,7 +120,8 @@ public class QueryResource
     String queryId = null;
 
     final String reqContentType = req.getContentType();
-    final boolean isSmile = SmileMediaTypes.APPLICATION_JACKSON_SMILE.equals(reqContentType) || APPLICATION_SMILE.equals(reqContentType);
+    final boolean isSmile = SmileMediaTypes.APPLICATION_JACKSON_SMILE.equals(reqContentType)
+                            || APPLICATION_SMILE.equals(reqContentType);
     final String contentType = isSmile ? SmileMediaTypes.APPLICATION_JACKSON_SMILE : MediaType.APPLICATION_JSON;
 
     ObjectMapper objectMapper = isSmile ? smileMapper : jsonMapper;
@@ -176,27 +172,7 @@ public class QueryResource
       );
 
       try {
-        long requestTime = System.currentTimeMillis() - start;
-
-        emitter.emit(
-            QueryMetricUtil.makeRequestTimeMetric(jsonMapper, query, req.getRemoteAddr())
-                           .build("request/time", requestTime)
-        );
-
-        requestLogger.log(
-            new RequestLogLine(
-                new DateTime(),
-                req.getRemoteAddr(),
-                query,
-                new QueryStats(
-                    ImmutableMap.<String, Object>of(
-                        "request/time", requestTime,
-                        "success", true
-                    )
-                )
-            )
-        );
-
+        final Query theQuery = query;
         return Response
             .ok(
                 new StreamingOutput()
@@ -207,10 +183,30 @@ public class QueryResource
                     // json serializer will always close the yielder
                     jsonWriter.writeValue(outputStream, yielder);
                     outputStream.close();
+
+                    final long requestTime = System.currentTimeMillis() - start;
+                    emitter.emit(
+                        QueryMetricUtil.makeRequestTimeMetric(jsonMapper, theQuery, req.getRemoteAddr())
+                                       .build("request/time", requestTime)
+                    );
+
+                    requestLogger.log(
+                        new RequestLogLine(
+                            new DateTime(),
+                            req.getRemoteAddr(),
+                            theQuery,
+                            new QueryStats(
+                                ImmutableMap.<String, Object>of(
+                                    "request/time", requestTime,
+                                    "success", true
+                                )
+                            )
+                        )
+                    );
                   }
                 },
                 contentType
-        )
+            )
             .header("X-Druid-Query-Id", queryId)
             .header("X-Druid-Response-Context", jsonMapper.writeValueAsString(responseContext))
             .build();

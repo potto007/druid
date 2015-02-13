@@ -21,14 +21,14 @@
     <groupId>io.druid</groupId>
     <artifactId>druid</artifactId>
     <packaging>pom</packaging>
-    <version>0.7.0-rc2</version>
+    <version>0.7.0-rc3</version>
     <name>druid</name>
     <description>druid</description>
     <scm>
         <connection>scm:git:ssh://git@github.com/druid-io/druid.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/druid-io/druid.git</developerConnection>
         <url>https://github.com/druid-io/druid</url>
-        <tag>druid-0.7.0-rc2</tag>
+        <tag>druid-0.7.0-rc3</tag>
     </scm>
 
     <prerequisites>
@@ -37,10 +37,10 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <metamx.java-util.version>0.26.11</metamx.java-util.version>
+        <metamx.java-util.version>0.26.14</metamx.java-util.version>
         <apache.curator.version>2.7.0</apache.curator.version>
         <jetty.version>9.2.5.v20141112</jetty.version>
-        <druid.api.version>0.3.1</druid.api.version>
+        <druid.api.version>0.3.4</druid.api.version>
         <jackson.version>2.4.4</jackson.version>
         <log4j.version>2.1</log4j.version>
     </properties>
@@ -79,12 +79,12 @@
             <dependency>
                 <groupId>com.metamx</groupId>
                 <artifactId>emitter</artifactId>
-                <version>0.2.13</version>
+                <version>0.3.0</version>
             </dependency>
             <dependency>
                 <groupId>com.metamx</groupId>
                 <artifactId>http-client</artifactId>
-                <version>0.9.12</version>
+                <version>1.0.0</version>
             </dependency>
             <dependency>
                 <groupId>com.metamx</groupId>
@@ -94,12 +94,12 @@
             <dependency>
                 <groupId>com.metamx</groupId>
                 <artifactId>bytebuffer-collections</artifactId>
-                <version>0.1.2</version>
+                <version>0.1.5</version>
             </dependency>
             <dependency>
                 <groupId>com.metamx</groupId>
                 <artifactId>server-metrics</artifactId>
-                <version>0.0.9</version>
+                <version>0.0.10</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
