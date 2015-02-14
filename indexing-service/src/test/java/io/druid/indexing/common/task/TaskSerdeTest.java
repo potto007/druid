@@ -367,6 +367,7 @@ public class TaskSerdeTest
     Assert.assertEquals(task.getTargetLoadSpec(), task2.getTargetLoadSpec());
   }
 
+/*
   @Test
   public void testHadoopIndexTaskSerde() throws Exception
   {
@@ -400,5 +401,5 @@ public class TaskSerdeTest
     );
     Assert.assertEquals("blah", task.getClasspathPrefix());
     Assert.assertEquals("blah", task2.getClasspathPrefix());
-  }
+  } */
 }
