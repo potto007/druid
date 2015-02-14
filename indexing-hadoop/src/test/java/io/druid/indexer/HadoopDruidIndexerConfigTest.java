@@ -149,7 +149,7 @@ public class HadoopDruidIndexerConfigTest
     );
 
   }
-
+/*
   @Test
   public void testHashedBucketSelection()
   {
@@ -210,7 +210,7 @@ public class HadoopDruidIndexerConfigTest
     }
 
   }
-
+*/
   /*
        @Test
        public void testAvroHashedBucketSelection() {
