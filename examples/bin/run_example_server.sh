@@ -49,17 +49,17 @@ if [ -e ${EXAMPLE_LOC}/before.sh ]; then
 fi
 
 #  start process
-JAVA_ARGS="-Xmx256m -Duser.timezone=UTC -Dfile.encoding=UTF-8"
+JAVA_ARGS="-Xmx512m -Duser.timezone=UTC -Dfile.encoding=UTF-8"
 JAVA_ARGS="${JAVA_ARGS} -Ddruid.realtime.specFile=${SPEC_FILE}"
 
 
 DRUID_CP=${EXAMPLE_LOC}
 #For a pull
-DRUID_CP=${DRUID_CP}:${SCRIPT_DIR}/../config/realtime
+DRUID_CP=${SCRIPT_DIR}/../config/realtime:${DRUID_CP}
 #For the kit
-DRUID_CP=${DRUID_CP}:${SCRIPT_DIR}/lib/*
 DRUID_CP=${DRUID_CP}:${SCRIPT_DIR}/config/_common
 DRUID_CP=${DRUID_CP}:${SCRIPT_DIR}/config/realtime
+DRUID_CP=${DRUID_CP}:${SCRIPT_DIR}/lib/*
 
 echo "Running command:"
 
