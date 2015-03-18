@@ -20,6 +20,7 @@ package io.druid.indexing.common.task;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.metamx.common.Granularity;
+
 import io.druid.data.input.impl.CSVParseSpec;
 import io.druid.data.input.impl.DimensionsSpec;
 import io.druid.data.input.impl.SpatialDimensionSchema;
@@ -40,6 +41,7 @@ import io.druid.segment.indexing.granularity.UniformGranularitySpec;
 import io.druid.segment.loading.DataSegmentPusher;
 import io.druid.segment.realtime.firehose.LocalFirehoseFactory;
 import io.druid.timeline.DataSegment;
+
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.Assert;
@@ -137,6 +139,12 @@ public class IndexTaskTest
                 return null;
               }
             };
+          }
+
+					@Override
+          public Boolean isRemote()
+          {
+	          return false;
           }
         }, null, new DataSegmentPusher()
         {

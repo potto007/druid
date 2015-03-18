@@ -207,29 +207,42 @@ public class RealtimeIndexTask extends AbstractTask
       }
     };
 
-    // NOTE: getVersion will block if there is lock contention, which will block plumber.getSink
-    // NOTE: (and thus the firehose)
 
-    // Shouldn't usually happen, since we don't expect people to submit tasks that intersect with the
-    // realtime window, but if they do it can be problematic. If we decide to care, we can use more threads in
-    // the plumber such that waiting for the coordinator doesn't block data processing.
-    final VersioningPolicy versioningPolicy = new VersioningPolicy()
-    {
-      @Override
-      public String getVersion(final Interval interval)
+
+    VersioningPolicy versioningPolicy;
+    
+    if (toolbox.isRemoteTask()) {
+      // NOTE: getVersion will block if there is lock contention, which will block plumber.getSink
+      // NOTE: (and thus the firehose)
+  
+      // Shouldn't usually happen, since we don't expect people to submit tasks that intersect with the
+      // realtime window, but if they do it can be problematic. If we decide to care, we can use more threads in
+      // the plumber such that waiting for the coordinator doesn't block data processing.
+      versioningPolicy = new VersioningPolicy()
       {
-        try {
-          // Side effect: Calling getVersion causes a lock to be acquired
-          final TaskLock myLock = toolbox.getTaskActionClient()
-                                         .submit(new LockAcquireAction(interval));
-
-          return myLock.getVersion();
+        @Override
+        public String getVersion(final Interval interval)
+        {
+          try {
+            // Side effect: Calling getVersion causes a lock to be acquired
+            final TaskLock myLock = toolbox.getTaskActionClient()
+                                           .submit(new LockAcquireAction(interval));
+  
+            return myLock.getVersion();
+          }
+          catch (IOException e) {
+            throw Throwables.propagate(e);
+          }
         }
-        catch (IOException e) {
-          throw Throwables.propagate(e);
-        }
-      }
-    };
+      };
+    }
+    else {
+      // Use the versioning policy defined in the realtime indexer spec instead of creating a new one here since in "local peon mode" the existing one causes each
+      // shard to create its own version directory causing each shard to overshadow prior shards.
+      // TBD:  In remote indexing service mode, should we use the locks instead?
+      versioningPolicy = spec.getTuningConfig().getVersioningPolicy();
+    	
+    }
 
     DataSchema dataSchema = spec.getDataSchema();
     RealtimeIOConfig realtimeIOConfig = spec.getIOConfig();

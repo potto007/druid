@@ -20,6 +20,7 @@ package io.druid.indexing.common.actions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.metamx.http.client.HttpClient;
+
 import io.druid.client.indexing.IndexingService;
 import io.druid.curator.discovery.ServerDiscoverySelector;
 import io.druid.guice.annotations.Global;
@@ -53,5 +54,10 @@ public class RemoteTaskActionClientFactory implements TaskActionClientFactory
   public TaskActionClient create(Task task)
   {
     return new RemoteTaskActionClient(task, httpClient, selector, retryPolicyFactory, jsonMapper);
+  }
+
+  @Override
+  public Boolean isRemote() {
+	return true;
   }
 }

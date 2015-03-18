@@ -118,6 +118,14 @@ public class TaskToolbox
     return taskActionClientFactory.create(task);
   }
 
+  /**
+   * Remote tasks use central coordination for handoff to deep storage through the overlord.
+   * @return true if the task should use central overlord coordination.
+   */
+  public Boolean isRemoteTask() {
+  	return taskActionClientFactory.isRemote();
+  }
+
   public ServiceEmitter getEmitter()
   {
     return emitter;

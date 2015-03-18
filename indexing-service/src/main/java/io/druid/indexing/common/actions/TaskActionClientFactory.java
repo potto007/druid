@@ -24,4 +24,9 @@ import io.druid.indexing.common.task.Task;
 public interface TaskActionClientFactory
 {
   public TaskActionClient create(Task task);
+  /**
+   * Remote tasks use central coordination for handoff to deep storage through the overlord.
+   * @return true if the task should use central overlord coordination.
+   */
+  public Boolean isRemote();
 }

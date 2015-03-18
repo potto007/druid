@@ -18,6 +18,7 @@
 package io.druid.indexing.common.actions;
 
 import com.google.inject.Inject;
+
 import io.druid.indexing.common.task.Task;
 import io.druid.indexing.overlord.TaskStorage;
 
@@ -40,4 +41,10 @@ public class LocalTaskActionClientFactory implements TaskActionClientFactory
   {
     return new LocalTaskActionClient(task, storage, toolbox);
   }
+
+  @Override
+  public Boolean isRemote() {
+	return false;
+  }
+ 
 }
