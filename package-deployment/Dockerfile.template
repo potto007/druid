@@ -1,11 +1,8 @@
 FROM registry.escher-twc.com:5000/drui:@IMAGE_TAG
 MAINTAINER "Ethan Wolf" <ethan.wolf@twcable.com>
 
-#ADD lib/ /opt/druid/lib
-#ADD deps/ /opt/druid/deps
-
-ADD druid-0.7.0/lib/ /opt/druid/lib
-#ADD deps/ /opt/druid/deps
+ADD lib/ /opt/druid/lib
+ADD deps/ /opt/druid/deps
 
 
 RUN export DRUID_VERSION=0.7.0
