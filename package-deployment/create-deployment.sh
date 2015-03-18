@@ -36,8 +36,12 @@ BASE_DIR=${PROG_DIR}/..
 DRUID_LIB=./lib
 DRUID_DEPS=./deps
 CP=${DRUID_LIB}/*
-
-DRUID_VERSION="0.7.0"
+# DRUID_VERSION="0.7.0"
+if ! [ -n "$DRUID_VERSION" ];
+then 
+   echo "DRUID_VERSION environment variable must be set"
+   exit -1
+fi
 
 echo BASE_DIR is ${BASE_DIR}
 
