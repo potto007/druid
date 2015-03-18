@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="30">
+  <Appenders>
+    <Console name="ConsoleLog" target="SYSTEM_OUT">
+      <PatternLayout>
+        <Pattern>%d{ISO8601} %-5p %c [%t]: %m%n</Pattern>
+      </PatternLayout>
+    </Console>
+
+    <RollingFile name="FileLog" fileName="logs/$${env:SERVICE_TYPE}_$${env:PORT}.log" append="true"
+                 filePattern="logs/$${env:SERVICE_TYPE}_$${env:PORT}-%d{yyyy-MM-dd}.log.gz">
+      <PatternLayout>
+        <Pattern>%d{ISO8601} %-5p %c [%t]: %m%n</Pattern>
+      </PatternLayout>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="24" modulate="true"/>
+      </Policies>
+      <DefaultRolloverStrategy max="14"/>
+    </RollingFile>
+
+    <RollingFile name="OpsFileLog" fileName="logs/$${env:SERVICE_TYPE}_$${env:PORT}_ops.log" append="true"
+                 filePattern="logs/$${env:SERVICE_TYPE}_$${env:PORT}_ops-%d{yyyy-MM-dd}.log.gz">
+      <PatternLayout>
+        <Pattern>%replace{%msg}{(Event\s\[)(.)(.*)("metric":)(.*)(\])}{$2"source":"druid","sourceVersion":"0.7.0_rc3","sourceCluster":"Escher",$3"metricName":$5}</Pattern>
+      </PatternLayout>
+      <RegexFilter onMatch="ACCEPT" onMismatch="DENY">
+         <Regex>.*"feed":"metrics".*</Regex>
+      </RegexFilter>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="24" modulate="true"/>
+      </Policies>
+      <DefaultRolloverStrategy max="14"/>
+    </RollingFile>
+
+
+    <RollingFile name="AlertsFileLog" fileName="logs/$${env:SERVICE_TYPE}_$${env:PORT}_alerts.log" append="true"
+                 filePattern="logs/$${env:SERVICE_TYPE}_$${env:PORT}_alerts-%d{yyyy-MM-dd}.log.gz">
+      <PatternLayout>
+        <Pattern>%replace{%msg}{(Event\s\[)(.)(.*)(\])}{$2"source":"druid","sourceVersion":"0.7.0_rc3","sourceCluster":"Escher",$3}</Pattern>
+      </PatternLayout>
+      <RegexFilter onMatch="ACCEPT" onMismatch="DENY">
+         <Regex>.*"feed":"alerts".*</Regex>
+      </RegexFilter>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="24" modulate="true"/>
+      </Policies>
+      <DefaultRolloverStrategy max="14"/>
+    </RollingFile>
+    <Kafka name="KafkaOperationalStats" topic="$${env:KAFKA_TOPIC_OPERATIONAL_STATS}">
+      <Property name="metadata.broker.list">$${env:KAFKA_BROKER_LIST_OPERATIONAL}</Property>
+      <Property name="serializer.class">shaded.com.twc.needle.log4j2.kafka.serializer.StringEncoder</Property>
+      <PatternLayout>
+        <Pattern>%replace{%msg}{(Event\s\[)(.)(.*)("metric":)(.*)(\])}{$2"source":"druid","sourceVersion":"0.7.0_rc3","sourceCluster":"Escher",$3"metricName":$5}</Pattern>
+      </PatternLayout>
+      <RegexFilter onMatch="ACCEPT" onMismatch="DENY">
+         <Regex>.*"feed":"metrics".*</Regex>
+      </RegexFilter>
+    </Kafka>
+
+    <Kafka name="KafkaOperationalAlerts" topic="$${env:KAFKA_TOPIC_OPERATIONAL_ALERTS}">
+      <Property name="metadata.broker.list">$${env:KAFKA_BROKER_LIST_OPERATIONAL}</Property>
+      <Property name="serializer.class">shaded.com.twc.needle.log4j2.kafka.serializer.StringEncoder</Property>
+      <PatternLayout>
+        <Pattern>%replace{%msg}{(Event\s\[)(.)(.*)(\])}{$2"source":"druid","sourceVersion":"0.7.0_rc3","sourceCluster":"Escher",$3}</Pattern>
+      </PatternLayout>
+      <RegexFilter onMatch="ACCEPT" onMismatch="DENY">
+        <Regex>.*"feed":"alerts".*</Regex>
+      </RegexFilter>
+    </Kafka>
+  </Appenders>
+
+  <Loggers>
+    <Logger name="com.metamx.emitter.core.LoggingEmitter" level="info" additivity="true">
+      <AppenderRef ref="OpsFileLog"/>
+      <AppenderRef ref="AlertsFileLog"/>
+      <AppenderRef ref="KafkaOperationalStats"/>
+      <AppenderRef ref="KafkaOperationalAlerts"/>
+    </Logger>
+    <!-- ServerView-related stuff is way too chatty -->
+    <logger name="io.druid.client.BatchServerInventoryView" level="warn"/>
+    <logger name="io.druid.curator.inventory.CuratorInventoryManager" level="warn"/>
+    <logger name="org.apache.zookeeper" level="warn"/>
+    <logger name="com.metamx.emitter.core" level="info"/>
+    <Root level="info">
+      <AppenderRef ref="FileLog" level="info"/>
+      <AppenderRef ref="ConsoleLog" level="info"/>
+    </Root>
+  </Loggers>
+</Configuration>

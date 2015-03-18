@@ -1,0 +1,16 @@
+FROM registry.escher-twc.com:5000/java7:1
+MAINTAINER "Ethan Wolf" <ethan.wolf@twcable.com>
+
+RUN mkdir -p /opt/druid/logs
+RUN mkdir -p /tmp/persistent/tasks
+
+ADD config/ /opt/druid/config
+
+ADD scripts/ /opt/druid/scripts
+ADD emptyfile.txt /opt/druid/emptyfile.txt
+
+# ADD sample/log4j2.xml /opt/druid/config/log4j2.xml
+# ADD sample/atomic_slice_minute_task.json /tmp/persistent/tasks/task_template.json
+
+WORKDIR /opt/druid
+CMD ./scripts/start-service.sh ${SERVICE_TYPE}
