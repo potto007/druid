@@ -52,5 +52,15 @@ tar xzf ${BASE_DIR}/services/target/druid-${DRUID_VERSION}-bin.tar.gz -C ${PROG_
 mv ${PROG_DIR}/tmp_extraction/druid-${DRUID_VERSION}/lib/ ${DRUID_LIB}
 rm -rf ${PROG_DIR}/tmp_extraction
 
-# STEP 2: Install a local repo of extensions in the DRUID_DEPS dir.  
+# STEP 2: Get the sigar library
+wget -P ${DRUID_LIB} -q https://repository.jboss.org/nexus/content/repositories/thirdparty-uploads/org/hyperic/sigar/1.6.5.132/sigar-1.6.5.132.jar
+if [ $? -ne 0 ]
+then
+ echo "Could not download sigar"
+ exit -1
+else
+  echo "downloaded sigar"
+fi
+
+# STEP 3: Install a local repo of extensions in the DRUID_DEPS dir.  
 java -server -Xmx8g -Xms8g -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Ddruid.extensions.localRepository="${DRUID_DEPS}" -Ddruid.extensions.coordinates="[\"io.druid.extensions:druid-kafka-eight:$DRUID_VERSION\", \"io.druid.extensions:druid-histogram:$DRUID_VERSION\", \"io.druid.extensions:mysql-metadata-storage:$DRUID_VERSION\"]" -cp "$CP" io.druid.cli.Main tools pull-deps
