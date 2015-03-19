@@ -46,15 +46,8 @@ fi
 echo BASE_DIR is ${BASE_DIR}
 
 #STEP 0:  Cleanup any old junk that might be around.
-if [ ! -d "${DRUID_LIB}" ]; then
-  mkdir ${DRUID_LIB} 
-fi
-rm -rf ${DRUID_LIB}/*
-
-if [ ! -d "${DRUID_DEPS}" ]; then
-  mkdir ${DRUID_DEPS}
-fi
-rm -rf ${DRUID_DEPS}/*
+rm -rf ${DRUID_LIB}
+rm -rf ${DRUID_DEPS}
 
 
 # STEP 1:  Assume druid has been built.  Extract the deployment jars from the
