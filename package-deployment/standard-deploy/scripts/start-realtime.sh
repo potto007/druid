@@ -16,8 +16,6 @@ INDEXER_ID=${PARTITION_NUM}_$(date +%Y-%m-%dT%H:%M:%S,%s)
 REALTIME_JAVA_OPTS="-Xmx8g -Xms8g -XX:NewSize=256m -XX:MaxNewSize=256m -XX:MaxDirectMemorySize=8G -XX:+UseConcMarkSweepGC -XX:MaxGCPauseMillis=100"
 REALTIME_JAVA_PROPS="-Ddruid.peon.mode=${PEON_MODE} -Ddruid.computation.buffer.size=268435456 -Ddruid.storageDirectory=${DEEPSTORAGE_DIRECTORY} -Ddruid.selectors.indexing.serviceName=${INDEXING_SERVICEMANAGER_NAME} -Ddruid.indexer.task.baseDir=/tmp -Ddruid.indexer.task.baseTaskDir=/tmp/persistent/tasks  -Ddruid.server.http.numThreads=${HTTP_NUM_THREADS} -Ddruid.metadata.storage.connector.connectURI=${STORAGE_CONNECTOR_URI} -Ddruid.metadata.storage.connector.user=${STORAGE_CONNECTOR_USER} -Ddruid.metadata.storage.connector.password=${STORAGE_CONNECTOR_PASSWORD} -Ddruid.metadata.storage.tables.base=${METADATA_TABLE_BASE}"
 
-# : ${LOG4J_CONFIG_FILE:="-Dlog4j.configurationFile=file:/opt/druid/config/log4j2.xml"}
-
 # Create our working directory
 mkdir -p /tmp/persistent/tasks/${INDEXER_ID}
 # make sure it is defined and not empty 
@@ -33,7 +31,7 @@ cat /tmp/persistent/tasks/${INDEXER_ID}/task_template.json | sed s/'<%= @partiti
 # So based on https://github.com/druid-io/druid/blob/d7d712a6abf3aca4443cfeddc201a5dd5ad2a922/indexing-service/src/main/java/io/druid/indexing/worker/executor/ExecutorLifecycle.java#L112
 # it will die before starting.
 # So pipe a never ending stream into it.
-tail -f ./emptyfile.txt | java $COMMON_JAVA_PROPS $REALTIME_JAVA_OPTS -cp $CP $REALTIME_JAVA_PROPS -Dlog4j.configurationFile=$LOG4J_CONFIG_FILE io.druid.cli.Main internal peon /tmp/persistent/tasks/${INDEXER_ID}/task.json /tmp/persistent/tasks/${INDEXER_ID}/status.json --nodeType realtime &
+tail -f ./emptyfile.txt | java $COMMON_JAVA_PROPS $REALTIME_JAVA_OPTS -cp $CP $REALTIME_JAVA_PROPS io.druid.cli.Main internal peon /tmp/persistent/tasks/${INDEXER_ID}/task.json /tmp/persistent/tasks/${INDEXER_ID}/status.json --nodeType realtime &
 
 # Unforutnatly, piping the stream in means even after java dies, the pipe keeps running.  So the Docker container never ends.
 # So run it in the background and then get its pid (the last background process)
