@@ -1,15 +1,14 @@
 #!/bin/bash
 
 #  Use DRUID_CLUSTER_NAME for all these "cluster name" type parameters if they aren't expliciltly set.
-: ${ZK_BASE_PATH:=$DRUID_CLUSTER_NAME}
-: ${METADATA_TABLE_BASE:=$DRUID_CLUSTER_NAME}
-# This one will give an error like "-bash: /cluster_name_value: No such file or directory.  But it still sets the variable.
-# TODO:  Figure out how to avoid the warning/execution
-: ${SOURCE_PROCESS_CLUSTER:=/$DRUID_CLUSTER_NAME}
+# Use echo to prevent the "/" causing the variable to be executed as a directory
+: echo ${ZK_BASE_PATH:=$DRUID_CLUSTER_NAME}
+: echo ${METADATA_TABLE_BASE:=$DRUID_CLUSTER_NAME}
+: echo ${SOURCE_PROCESS_CLUSTER:=/$DRUID_CLUSTER_NAME}
 
 #  If not set, default to druid's normal default of overlord.
 #  Only matters if running peons in remote mode (PEON_MODE=remote) instead of local.
-: ${INDEXING_SERVICEMANAGER_NAME:=overlord}
+: echo ${INDEXING_SERVICEMANAGER_NAME:=overlord}
 #  Not sure if we want it prefixed by the ZK_BASE_PATH in the name? 
 #  I think not?
 # INDEXING_SERVICEMANAGER_NAME=${ZK_BASE_PATH}:${INDEXING_SERVICEMANAGER_NAME}
