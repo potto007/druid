@@ -58,9 +58,25 @@ if [ $? -ne 0 ]
 then
  echo "Could not download sigar"
  exit -1
-else
-  echo "downloaded sigar"
 fi
+
 
 # STEP 3: Install a local repo of extensions in the DRUID_DEPS dir.  
 java -server -Xmx8g -Xms8g -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Ddruid.extensions.localRepository="${DRUID_DEPS}" -Ddruid.extensions.coordinates="[\"io.druid.extensions:druid-kafka-eight:$DRUID_VERSION\", \"io.druid.extensions:druid-histogram:$DRUID_VERSION\", \"io.druid.extensions:mysql-metadata-storage:$DRUID_VERSION\"]" -cp "$CP" io.druid.cli.Main tools pull-deps
+
+
+# STEP 4:  Set up our log4j2 kafka logger for logging operational stats on the main classpath
+wget -P ${DRUID_LIB}/logger -q http://relic.webapps.rr.com/artifactory/simple/twc-releases/com/twc/needle/logj42-kafka/kafka_2.10_0.8.1.1/1.2/log4j2-kafka-with-kafka_2.10_0.8.1.1-1.2.jar
+if [ $? -ne 0 ]
+then
+ echo "Could not download log4j2 kafka logger"
+ exit -1
+fi
+# Unfortunately, Kafka libraries depend on scala. 
+# We need to make sure we get the same one that is in the extension.
+cp -rv ${DRUID_DEPS}/org/scala-lang/scala-library/2.10.4/scala-library-2.10.4.jar ${DRUID_LIB}/logger
+if [ $? -ne 0 ]
+then
+ echo "Could not copy ${DRUID_DEPS}/org/scala-lang/scala-library/2.10.4/scala-library-2.10.4.jar"
+ exit -1
+fi
