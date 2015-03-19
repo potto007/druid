@@ -52,6 +52,9 @@ tar xzf ${BASE_DIR}/services/target/druid-${DRUID_VERSION}-bin.tar.gz -C ${PROG_
 mv ${PROG_DIR}/tmp_extraction/druid-${DRUID_VERSION}/lib/ ${DRUID_LIB}
 rm -rf ${PROG_DIR}/tmp_extraction
 
+# STEP 1.5:  Cleanup bad dependencies that cause runtime errors do to inconsistent APIs
+rm -f lib/servlet-api-2.5-20081211.jar
+
 # STEP 2: Get the sigar library
 wget -P ${DRUID_LIB} -q https://repository.jboss.org/nexus/content/repositories/thirdparty-uploads/org/hyperic/sigar/1.6.5.132/sigar-1.6.5.132.jar
 if [ $? -ne 0 ]
