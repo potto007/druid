@@ -14,7 +14,16 @@
 # INDEXING_SERVICEMANAGER_NAME=${ZK_BASE_PATH}:${INDEXING_SERVICEMANAGER_NAME}
 
 #  Don't use "com.metamx.metrics.SysMonitor" since  Sigar needs to read /dev which in docker seems to not be readable or volume mountable.
-: echo ${MONITORING_MONITORS:="[\"com.metamx.metrics.JvmMonitor\",\"io.druid.server.metrics.ServerMonitor\"]"}
+# : echo ${MONITORING_MONITORS:="[\"com.metamx.metrics.JvmMonitor\",\"io.druid.server.metrics.ServerMonitor\"]"}
+if ! [ -n "$MONITORING_MONITORS" ]; then
+   if [ $1 = "historical" ]; then
+      MONITORING_MONITORS="[\"com.metamx.metrics.JvmMonitor\",\"io.druid.server.metrics.ServerMonitor\"]"
+   else
+      MONITORING_MONITORS="[\"com.metamx.metrics.JvmMonitor\"]"
+   fi
+   echo "Warning:  Using default MONITORING_MONITORS: ${MONITORING_MONITORS}.  Set Environment variable to override."
+fi
+
 
 CP=/opt/druid/config/_common:/opt/druid/lib/*:/opt/druid/lib/logger/*
 # Also allow EXTRA_JAVA_PROPS to be passed ass an environment variable.
