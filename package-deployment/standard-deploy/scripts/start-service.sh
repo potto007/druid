@@ -13,9 +13,12 @@
 #  I think not?
 # INDEXING_SERVICEMANAGER_NAME=${ZK_BASE_PATH}:${INDEXING_SERVICEMANAGER_NAME}
 
+#  Don't use "com.metamx.metrics.SysMonitor" since  Sigar needs to read /dev which in docker seems to not be readable or volume mountable.
+: echo ${MONITORING_MONITORS:="[\"com.metamx.metrics.JvmMonitor\",\"io.druid.server.metrics.ServerMonitor\"]"}
+
 CP=/opt/druid/config/_common:/opt/druid/lib/*:/opt/druid/lib/logger/*
 # Also allow EXTRA_JAVA_PROPS to be passed ass an environment variable.
-COMMON_JAVA_PROPS="-server -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Ddruid.host=${HOST}:${PORT} -Ddruid.port=${PORT} -Dlog4j.configurationFile=$LOG4J_CONFIG_FILE -Djava.io.tmpdir=/tmp -Ddruid.zk.service.host=${ZK_CONNECT} -Ddruid.zk.paths.base=${ZK_BASE_PATH} -Ddruid.discovery.curator.path=${ZK_BASE_PATH}/discovery -Ddruid.extensions.remoteRepository=[] -Ddruid.extensions.localRepository=/opt/druid/deps -Ddruid.extensions.coordinates=${EXTENSION_COORDINATES} ${EXTRA_JAVA_PROPS}"
+COMMON_JAVA_PROPS="-server -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Ddruid.host=${HOST}:${PORT} -Ddruid.port=${PORT} -Dlog4j.configurationFile=$LOG4J_CONFIG_FILE -Djava.io.tmpdir=/tmp -Ddruid.zk.service.host=${ZK_CONNECT} -Ddruid.zk.paths.base=${ZK_BASE_PATH} -Ddruid.discovery.curator.path=${ZK_BASE_PATH}/discovery -Ddruid.extensions.remoteRepository=[] -Ddruid.extensions.localRepository=/opt/druid/deps -Ddruid.extensions.coordinates=${EXTENSION_COORDINATES} -Ddruid.monitoring.monitors=${MONITORING_MONITORS} ${EXTRA_JAVA_PROPS}"
 
 if [ $1 = "historical" ]; then
 	source $(dirname $0)/start-historical.sh
