@@ -28,8 +28,10 @@ fi
 CP=/opt/druid/config/_common:/opt/druid/lib/*:/opt/druid/lib/logger/*
 # Also allow EXTRA_JAVA_PROPS to be passed ass an environment variable.
 # Since that seems to contain nested environment variables inside the string (e.g. like "\$VAR1", do some bash magic to evaluate them now.
-EVALUATED_EXTRA_JAVA_OPTS=$(eval echo $EXTRA_JAVA_OPTS) 
-COMMON_JAVA_PROPS="-server -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Ddruid.host=${HOST}:${PORT} -Ddruid.port=${PORT} -Dlog4j.configurationFile=$LOG4J_CONFIG_FILE -Djava.io.tmpdir=/tmp -Ddruid.zk.service.host=${ZK_CONNECT} -Ddruid.zk.paths.base=${ZK_BASE_PATH} -Ddruid.discovery.curator.path=${ZK_BASE_PATH}/discovery -Ddruid.extensions.remoteRepository=[] -Ddruid.extensions.localRepository=/opt/druid/deps -Ddruid.extensions.coordinates=${EXTENSION_COORDINATES} -Ddruid.monitoring.monitors=${MONITORING_MONITORS} ${EVALUATED_EXTRA_JAVA_OPTS}"
+EVALUATED_EXTRA_JAVA_PROPS=$(eval echo $EXTRA_JAVA_PROPS) 
+COMMON_JAVA_PROPS="-server -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Ddruid.host=${HOST}:${PORT} -Ddruid.port=${PORT} -Dlog4j.configurationFile=$LOG4J_CONFIG_FILE -Djava.io.tmpdir=/tmp -Ddruid.zk.service.host=${ZK_CONNECT} -Ddruid.zk.paths.base=${ZK_BASE_PATH} -Ddruid.discovery.curator.path=${ZK_BASE_PATH}/discovery -Ddruid.extensions.remoteRepository=[] -Ddruid.extensions.localRepository=/opt/druid/deps -Ddruid.extensions.coordinates=${EXTENSION_COORDINATES} -Ddruid.monitoring.monitors=${MONITORING_MONITORS} ${EVALUATED_EXTRA_JAVA_PROPS}"
+echo $COMMON_JAVA_PROPS
+
 
 if [ $1 = "historical" ]; then
 	source $(dirname $0)/start-historical.sh
