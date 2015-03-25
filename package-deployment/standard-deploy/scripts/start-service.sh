@@ -1,4 +1,6 @@
 #!/bin/bash
+# Verbose execution so we can see the commands in logs.
+set -x 
 
 #  Use DRUID_CLUSTER_NAME for all these "cluster name" type parameters if they aren't expliciltly set.
 # Use echo to prevent the "/" causing the variable to be executed as a directory
