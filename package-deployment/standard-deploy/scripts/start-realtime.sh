@@ -13,7 +13,7 @@ CP=/opt/druid/config/realtime:$CP
 INDEXER_ID=${PARTITION_NUM}_$(date +%Y-%m-%dT%H:%M:%S,%s)
 
 
-REALTIME_JAVA_OPTS="-Xmx8g -Xms8g -XX:NewSize=256m -XX:MaxNewSize=256m -XX:MaxDirectMemorySize=8G -XX:+UseConcMarkSweepGC -XX:MaxGCPauseMillis=100"
+REALTIME_JAVA_OPTS="-XX:NewSize=256m -XX:MaxNewSize=256m -XX:+UseConcMarkSweepGC -XX:MaxGCPauseMillis=100"
 REALTIME_JAVA_PROPS="-Ddruid.peon.mode=${PEON_MODE} -Ddruid.computation.buffer.size=268435456 -Ddruid.storageDirectory=${DEEPSTORAGE_DIRECTORY} -Ddruid.selectors.indexing.serviceName=${INDEXING_SERVICEMANAGER_NAME} -Ddruid.indexer.task.baseDir=/tmp -Ddruid.indexer.task.baseTaskDir=/tmp/persistent/tasks  -Ddruid.server.http.numThreads=${HTTP_NUM_THREADS} -Ddruid.metadata.storage.connector.connectURI=${STORAGE_CONNECTOR_URI} -Ddruid.metadata.storage.connector.user=${STORAGE_CONNECTOR_USER} -Ddruid.metadata.storage.connector.password=${STORAGE_CONNECTOR_PASSWORD} -Ddruid.metadata.storage.tables.base=${METADATA_TABLE_BASE}"
 
 # Create our working directory
@@ -27,11 +27,15 @@ mkdir -p /tmp/persistent/tasks/${INDEXER_ID}
 
 cat /tmp/persistent/tasks/${INDEXER_ID}/task_template.json | sed s/'<%= @partition %>'/${PARTITION_NUM}/g | sed s/'<%= @zk_connect %>'/${ZK_CONNECT}/g | sed s/'<%= @cluster %>'/${DRUID_CLUSTER_NAME}/g | sed s/'<%= @datasource %>'/${DATASOURCE}/g | sed s/'<%= @kafka_topic %>'/${KAFKA_TOPIC}/g | sed s/'<%= @query_granularity_duration %>'/${QUERY_GRANULARITY_DURATION}/g > /tmp/persistent/tasks/${INDEXER_ID}/task.json
 
+#  Print out the indexer json so that we can see it in logs even if the indexer isn't doing INFO level debugging
+echo "Launching realtime indexer: $INDEXER_ID"
+cat /tmp/persistent/tasks/${INDEXER_ID}/task.json
+
 # Mesos runs the docker container detached.  So there is no stdin.
 # So based on https://github.com/druid-io/druid/blob/d7d712a6abf3aca4443cfeddc201a5dd5ad2a922/indexing-service/src/main/java/io/druid/indexing/worker/executor/ExecutorLifecycle.java#L112
 # it will die before starting.
 # So pipe a never ending stream into it.
-tail -f ./emptyfile.txt | java $COMMON_JAVA_PROPS $REALTIME_JAVA_OPTS -cp $CP $REALTIME_JAVA_PROPS io.druid.cli.Main internal peon /tmp/persistent/tasks/${INDEXER_ID}/task.json /tmp/persistent/tasks/${INDEXER_ID}/status.json --nodeType realtime &
+tail -f ./emptyfile.txt | java $COMMON_JAVA_PROPS $REALTIME_JAVA_OPTS -cp $CP $COMMON_JAVA_OPTS $REALTIME_JAVA_PROPS io.druid.cli.Main internal peon /tmp/persistent/tasks/${INDEXER_ID}/task.json /tmp/persistent/tasks/${INDEXER_ID}/status.json --nodeType realtime &
 
 # Unforutnatly, piping the stream in means even after java dies, the pipe keeps running.  So the Docker container never ends.
 # So run it in the background and then get its pid (the last background process)
