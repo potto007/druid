@@ -1,4 +1,4 @@
-FROM registry.escher-twc.com:5000/drui:@IMAGE_TAG
+FROM registry.escher-twc.com:5000/@BASE_IMAGE
 MAINTAINER "Ethan Wolf" <ethan.wolf@twcable.com>
 
 ADD lib/ /opt/druid/lib
