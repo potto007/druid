@@ -35,7 +35,9 @@ cat /tmp/persistent/tasks/${INDEXER_ID}/task.json
 # So based on https://github.com/druid-io/druid/blob/d7d712a6abf3aca4443cfeddc201a5dd5ad2a922/indexing-service/src/main/java/io/druid/indexing/worker/executor/ExecutorLifecycle.java#L112
 # it will die before starting.
 # So pipe a never ending stream into it.
-tail -f ./emptyfile.txt | java $COMMON_JAVA_PROPS $REALTIME_JAVA_OPTS -cp $CP $COMMON_JAVA_OPTS $REALTIME_JAVA_PROPS io.druid.cli.Main internal peon /tmp/persistent/tasks/${INDEXER_ID}/task.json /tmp/persistent/tasks/${INDEXER_ID}/status.json --nodeType realtime &
+JAVA_COMMAND="java $COMMON_JAVA_PROPS $REALTIME_JAVA_OPTS -cp $CP $COMMON_JAVA_OPTS $REALTIME_JAVA_PROPS io.druid.cli.Main internal peon /tmp/persistent/tasks/${INDEXER_ID}/task.json /tmp/persistent/tasks/${INDEXER_ID}/status.json --nodeType realtime &"
+echo $JAVA_COMMAND
+tail -f ./emptyfile.txt | $JAVA_COMMAND
 
 # Unforutnatly, piping the stream in means even after java dies, the pipe keeps running.  So the Docker container never ends.
 # So run it in the background and then get its pid (the last background process)
