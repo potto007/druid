@@ -12,8 +12,8 @@ CP=/opt/druid/config/realtime:$CP
 : ${PARTITION_NUM:=$RANDOM}
 INDEXER_ID=${PARTITION_NUM}_$(date +%Y-%m-%dT%H:%M:%S,%s)
 
-
-REALTIME_JAVA_OPTS="-XX:NewSize=256m -XX:MaxNewSize=256m -XX:+UseConcMarkSweepGC -XX:MaxGCPauseMillis=100"
+: echo ${JVM_MAX_DIRECT_MEM_SIZE:=8g}
+REALTIME_JAVA_OPTS="-XX:NewSize=256m -XX:MaxNewSize=256m -XX:+UseConcMarkSweepGC -XX:MaxGCPauseMillis=100  -XX:MaxDirectMemorySize=${JVM_MAX_DIRECT_MEM_SIZE}"
 REALTIME_JAVA_PROPS="-Ddruid.peon.mode=${PEON_MODE} -Ddruid.computation.buffer.size=268435456 -Ddruid.storageDirectory=${DEEPSTORAGE_DIRECTORY} -Ddruid.selectors.indexing.serviceName=${INDEXING_SERVICEMANAGER_NAME} -Ddruid.indexer.task.baseDir=/tmp -Ddruid.indexer.task.baseTaskDir=/tmp/persistent/tasks  -Ddruid.server.http.numThreads=${HTTP_NUM_THREADS} -Ddruid.metadata.storage.connector.connectURI=${STORAGE_CONNECTOR_URI} -Ddruid.metadata.storage.connector.user=${STORAGE_CONNECTOR_USER} -Ddruid.metadata.storage.connector.password=${STORAGE_CONNECTOR_PASSWORD} -Ddruid.metadata.storage.tables.base=${METADATA_TABLE_BASE}"
 
 # Create our working directory
