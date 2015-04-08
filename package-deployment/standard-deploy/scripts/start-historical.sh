@@ -6,7 +6,6 @@ CP=/opt/druid/config/historical:$CP
 
 : echo ${PROCESSING_BUFFER_SIZE_BYTES:=1073741824}
 : echo ${PROCESSING_NUM_THREADS:=16}
-: echo ${SERVER_PRIORITY:=0}
 : echo ${USE_CACHE:=false}
 : echo ${CACHE_TYPE:=local}
 : echo ${CACHE_PREFIX:=$DRUID_CLUSTER_NAME}
@@ -26,7 +25,7 @@ NUM_THREADS_PLUS_ONE=`expr $PROCESSING_NUM_THREADS \\+ 1`
 : ${JVM_MAX_DIRECT_MEM_SIZE:=`expr $PROCESSING_BUFFER_SIZE_BYTES \\* $NUM_THREADS_PLUS_ONE`}
 
 HISTORICAL_JAVA_OPTS="-XX:NewSize=6g -XX:MaxNewSize=6g -XX:+UseConcMarkSweepGC -XX:MaxDirectMemorySize=${JVM_MAX_DIRECT_MEM_SIZE}"
-HISTORICAL_JAVA_PROPS="-Ddruid.server.tier=${HISTORICAL_TIER} -Ddruid.server.priority=${SERVER_PRIORITY} -Ddruid.storageDirectory=${DEEPSTORAGE_DIRECTORY} -Ddruid.server.http.numThreads=${HTTP_NUM_THREADS} -Ddruid.processing.buffer.sizeBytes=${PROCESSING_BUFFER_SIZE_BYTES} -Ddruid.processing.numThreads=${PROCESSING_NUM_THREADS} -Ddruid.server.maxSize=${SERVER_MAX_SIZE} -Ddruid.segmentCache.locations=[{\"path\":\"/druid/local/historical/indexCache\",\"maxSize\":${SERVER_MAX_SIZE}}] -Ddruid.server.priority=${SERVER_PRIORITY} -Ddruid.historical.cache.useCache=${USE_CACHE} -Ddruid.historical.cache.populateCache=${USE_CACHE} -Ddruid.cache.type=${CACHE_TYPE} -Ddruid.cache.memcachedPrefix=${CACHE_PREFIX} -Ddruid.cache.hosts=${MEMCACHED_HOSTS} -Ddruid.cache.expiration=${CACHE_EXPIRATION}"
+HISTORICAL_JAVA_PROPS="-Ddruid.server.tier=${HISTORICAL_TIER} -Ddruid.server.priority=${SERVER_PRIORITY} -Ddruid.storageDirectory=${DEEPSTORAGE_DIRECTORY} -Ddruid.server.http.numThreads=${HTTP_NUM_THREADS} -Ddruid.processing.buffer.sizeBytes=${PROCESSING_BUFFER_SIZE_BYTES} -Ddruid.processing.numThreads=${PROCESSING_NUM_THREADS} -Ddruid.server.maxSize=${SERVER_MAX_SIZE} -Ddruid.segmentCache.locations=[{\"path\":\"/druid/local/historical/indexCache\",\"maxSize\":${SERVER_MAX_SIZE}}] -Ddruid.historical.cache.useCache=${USE_CACHE} -Ddruid.historical.cache.populateCache=${USE_CACHE} -Ddruid.cache.type=${CACHE_TYPE} -Ddruid.cache.memcachedPrefix=${CACHE_PREFIX} -Ddruid.cache.hosts=${MEMCACHED_HOSTS} -Ddruid.cache.expiration=${CACHE_EXPIRATION}"
 
 
 JAVA_COMMAND="java $COMMON_JAVA_PROPS $HISTORICAL_JAVA_OPTS -cp $CP $COMMON_JAVA_OPTS $HISTORICAL_JAVA_PROPS io.druid.cli.Main server historical"
